@@ -97,3 +97,13 @@ Description:
 		Write changed RGB keyboard backlight parameters:
 			* 1 - permanently,
 			* 2 - temporarily.
+
+What:		/sys/devices/platform/<platform>/fan_mode
+Date:		Apr 2019
+KernelVersion:	5.1
+Contact:	"Yurii Pavlovskyi" <yurii.pavlovskyi@gmail.com>
+Description:
+		Fan boost mode:
+			* 0 - normal,
+			* 1 - overboost,
+			* 2 - silent
