@@ -36,3 +36,64 @@ KernelVersion:	3.5
 Contact:	"AceLan Kao" <acelan.kao@canonical.com>
 Description:
 		Resume on lid open. 1 means on, 0 means off.
+
+What:		/sys/devices/platform/<platform>/kbbl/kbbl_red
+Date:		Apr 2019
+KernelVersion:	5.1
+Contact:	"Yurii Pavlovskyi" <yurii.pavlovskyi@gmail.com>
+Description:
+		RGB keyboard backlight red component: 00 .. ff.
+
+What:		/sys/devices/platform/<platform>/kbbl/kbbl_green
+Date:		Apr 2019
+KernelVersion:	5.1
+Contact:	"Yurii Pavlovskyi" <yurii.pavlovskyi@gmail.com>
+Description:
+		RGB keyboard backlight green component: 00 .. ff.
+
+What:		/sys/devices/platform/<platform>/kbbl/kbbl_blue
+Date:		Apr 2019
+KernelVersion:	5.1
+Contact:	"Yurii Pavlovskyi" <yurii.pavlovskyi@gmail.com>
+Description:
+		RGB keyboard backlight blue component: 00 .. ff.
+
+What:		/sys/devices/platform/<platform>/kbbl/kbbl_mode
+Date:		Apr 2019
+KernelVersion:	5.1
+Contact:	"Yurii Pavlovskyi" <yurii.pavlovskyi@gmail.com>
+Description:
+		RGB keyboard backlight mode:
+			* 0 - static color,
+			* 1 - breathing,
+			* 2 - color cycle,
+			* 3 - strobing.
+
+What:		/sys/devices/platform/<platform>/kbbl/kbbl_speed
+Date:		Apr 2019
+KernelVersion:	5.1
+Contact:	"Yurii Pavlovskyi" <yurii.pavlovskyi@gmail.com>
+Description:
+		RGB keyboard backlight speed for modes 1 and 2:
+			* 0 - slow,
+			* 1 - medium,
+			* 2 - fast.
+
+What:		/sys/devices/platform/<platform>/kbbl/kbbl_flags
+Date:		Apr 2019
+KernelVersion:	5.1
+Contact:	"Yurii Pavlovskyi" <yurii.pavlovskyi@gmail.com>
+Description:
+		RGB keyboard backlight enable flags (2a to enable everything), OR of:
+			* 02 - on boot (until module load),
+			* 08 - awake,
+			* 20 - sleep.
+
+What:		/sys/devices/platform/<platform>/kbbl/kbbl_set
+Date:		Apr 2019
+KernelVersion:	5.1
+Contact:	"Yurii Pavlovskyi" <yurii.pavlovskyi@gmail.com>
+Description:
+		Write changed RGB keyboard backlight parameters:
+			* 1 - permanently,
+			* 2 - temporarily.
