@@ -178,6 +178,7 @@ struct asus_wmi {
 	struct asus_rfkill gps;
 	struct asus_rfkill uwb;
 
+	bool asus_hwmon_thermal_available;
 	bool asus_hwmon_fan_manual_mode;
 	int asus_hwmon_num_fans;
 	int asus_hwmon_pwm;
@@ -1375,6 +1376,32 @@ static struct attribute *hwmon_attributes[] = {
 	NULL
 };
 
+static int asus_hwmon_check_thermal_available(struct asus_wmi *asus)
+{
+	u32 value = ASUS_WMI_UNSUPPORTED_METHOD;
+	int err;
+
+	asus->asus_hwmon_thermal_available = false;
+	err = asus_wmi_get_devstate(asus, ASUS_WMI_DEVID_THERMAL_CTRL, &value);
+
+	if (err < 0) {
+		if (err == -ENODEV)
+			return 0;
+
+		return err;
+	}
+
+	/*
+	 * If the temperature value in deci-Kelvin is near the absolute
+	 * zero temperature, something is clearly wrong.
+	 */
+	if (!value || value == 1)
+		return 0;
+
+	asus->asus_hwmon_thermal_available = true;
+	return 0;
+}
+
 static umode_t asus_hwmon_sysfs_is_visible(struct kobject *kobj,
 					  struct attribute *attr, int idx)
 {
@@ -1388,8 +1415,6 @@ static umode_t asus_hwmon_sysfs_is_visible(struct kobject *kobj,
 
 	if (attr == &dev_attr_pwm1.attr)
 		dev_id = ASUS_WMI_DEVID_FAN_CTRL;
-	else if (attr == &dev_attr_temp1_input.attr)
-		dev_id = ASUS_WMI_DEVID_THERMAL_CTRL;
 
 	if (attr == &dev_attr_fan1_input.attr
 	    || attr == &dev_attr_fan1_label.attr
@@ -1414,15 +1439,13 @@ static umode_t asus_hwmon_sysfs_is_visible(struct kobject *kobj,
 		 * - reverved bits are non-zero
 		 * - sfun and presence bit are not set
 		 */
-		if (value == ASUS_WMI_UNSUPPORTED_METHOD || value & 0xFFF80000
+		if (value == ASUS_WMI_UNSUPPORTED_METHOD || (value & 0xFFF80000)
 		    || (!asus->sfun && !(value & ASUS_WMI_DSTS_PRESENCE_BIT)))
 			ok = false;
 		else
 			ok = fan_attr <= asus->asus_hwmon_num_fans;
-	} else if (dev_id == ASUS_WMI_DEVID_THERMAL_CTRL) {
-		/* If value is zero, something is clearly wrong */
-		if (!value)
-			ok = false;
+	} else if (attr == &dev_attr_temp1_input.attr) {
+		ok = asus->asus_hwmon_thermal_available;
 	} else if (fan_attr <= asus->asus_hwmon_num_fans && fan_attr != -1) {
 		ok = true;
 	} else {
@@ -1469,6 +1492,14 @@ static int asus_wmi_fan_init(struct asus_wmi *asus)
 	}
 
 	pr_info("Number of fans: %d\n", asus->asus_hwmon_num_fans);
+
+	status = asus_hwmon_check_thermal_available(asus);
+	if (status) {
+		pr_warn("Could not check if thermal available: %d\n", status);
+		return -ENXIO;
+	}
+
+	pr_info("Thermal available: %d\n", asus->asus_hwmon_thermal_available);
 	return 0;
 }
 
